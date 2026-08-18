@@ -15,6 +15,8 @@ import {
   CheckCircle2,
   ChevronRight,
   ArrowUpRight,
+  Info,
+  X,
 } from "lucide-react";
 import { Badge, Button, Card, Modal, PageHeader } from "../components/ui";
 import { useAppStore } from "../store/useAppStore";
@@ -35,10 +37,8 @@ export function Dashboard() {
   const covered = doctors.filter((d) => d.covered).length;
   const uncovered = doctors.filter((d) => !d.covered).length;
 
-  // Estado para la regla de gobernanza seleccionada
-  const [selectedRule, setSelectedRule] = useState<
-    (typeof governanceRules)[0] | null
-  >(null);
+  // Estado para la regla de gobernanza seleccionada (burbuja flotante individual)
+  const [selectedRuleId, setSelectedRuleId] = useState<string | null>(null);
 
   // Estado para controlar la apertura del modal "Estado rápido"
   const [isQuickStatusOpen, setIsQuickStatusOpen] = useState(false);
@@ -167,8 +167,8 @@ export function Dashboard() {
       </div>
 
       {/* 2. PILARES OPERATIVOS & GOBERNANZA (ANCHO COMPLETO HORIZONTAL) */}
-      <Card className="overflow-hidden border-ink-200/60 w-full">
-        <div className="flex items-center gap-2 border-b border-ink-100 bg-gradient-to-r from-ink-50/80 to-white px-6 py-4">
+      <Card className="overflow-visible border-ink-200/60 w-full">
+        <div className="flex items-center gap-2 border-b border-ink-100 bg-gradient-to-r from-ink-50/80 to-white px-6 py-4 rounded-t-2xl">
           <Sparkles size={18} className="text-brand-600" />
           <h3 className="text-sm font-bold tracking-wide text-ink-900 uppercase">
             Pilares operativos & Gobernanza
@@ -209,42 +209,85 @@ export function Dashboard() {
           ))}
         </div>
 
-        {/* 6 REGLAS DE GOBERNANZA INTERACTIVAS */}
-        <div className="border-t border-ink-100 bg-slate-50/50 p-6">
-          <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ink-400">
-            Reglas de Gobernanza Activas
-          </p>
+        {/* 6 REGLAS DE GOBERNANZA INTERACTIVAS (CON BURBUJA FLOTANTE A LA DERECHA CUBRIENDO LA FLECHA) */}
+        <div className="border-t border-ink-100 bg-slate-50/50 p-6 rounded-b-2xl overflow-visible">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs font-bold uppercase tracking-wider text-ink-400">
+              Reglas de Gobernanza Activas
+            </p>
+            <span className="text-[11px] text-ink-400 italic">
+              Haz clic en una regla para ver su detalle
+            </span>
+          </div>
 
           {governanceRules.filter((r) => r.enforced).length === 0 ? (
             <p className="text-xs text-ink-400 italic">
               No hay reglas de gobernanza activas actualmente.
             </p>
           ) : (
-            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 relative overflow-visible">
               {governanceRules
                 .filter((r) => r.enforced)
                 .slice(0, 6)
                 .map((r, index) => {
                   const style = ruleStyles[index % ruleStyles.length];
+                  const isSelected = selectedRuleId === r.id;
+
                   return (
-                    <div
-                      key={r.id}
-                      onClick={() => setSelectedRule(r)}
-                      className={`group flex items-center justify-between gap-2.5 rounded-xl border p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer ${style.bg}`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <ShieldCheck
-                          size={18}
-                          className={`shrink-0 ${style.icon}`}
+                    <div key={r.id} className="relative overflow-visible">
+                      {/* TARJETA */}
+                      <div
+                        onClick={() =>
+                          setSelectedRuleId(isSelected ? null : r.id)
+                        }
+                        className={`group flex items-center justify-between gap-2.5 rounded-xl border p-3.5 shadow-sm transition-all duration-200 cursor-pointer bg-white relative z-10 ${style.bg} ${
+                          isSelected
+                            ? "ring-2 ring-brand-500/25 border-brand-500 shadow-md"
+                            : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <ShieldCheck
+                            size={18}
+                            className={`shrink-0 ${style.icon}`}
+                          />
+                          <p className="text-xs font-semibold line-clamp-2 leading-snug">
+                            {r.title}
+                          </p>
+                        </div>
+                        <ChevronRight
+                          size={14}
+                          className={`shrink-0 transition-opacity ${
+                            isSelected
+                              ? "opacity-0"
+                              : "opacity-40 group-hover:opacity-100"
+                          }`}
                         />
-                        <p className="text-xs font-semibold line-clamp-2 leading-snug">
-                          {r.title}
-                        </p>
                       </div>
-                      <ChevronRight
-                        size={14}
-                        className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
-                      />
+
+                      {/* BURBUJA FLOTANTE A LA DERECHA, POR DELANTE Y CUBRIENDO LA ZONA DE LA FLECHA */}
+                      {isSelected && (
+                        <div className="absolute left-[calc(100%+8px)] top-0 z-50 w-72 rounded-xl border border-brand-300 bg-white p-4 shadow-2xl animate-fade-up">
+                          <div className="flex items-start justify-between gap-2 mb-1.5">
+                            <p className="font-bold text-xs text-brand-900 flex items-center gap-1.5">
+                              <span className="h-2 w-2 rounded-full bg-brand-600 animate-pulse" />
+                              Detalle de regla
+                            </p>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedRuleId(null);
+                              }}
+                              className="rounded-lg p-1 text-ink-400 hover:text-ink-700 transition-colors"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                          <p className="text-xs text-ink-700 bg-slate-50 p-2.5 rounded-lg border border-slate-100 leading-relaxed">
+                            {r.description}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -421,34 +464,6 @@ export function Dashboard() {
             </p>
           </div>
         </div>
-      </Modal>
-
-      {/* MODAL INTERACTIVO DE REGLAS DE GOBERNANZA */}
-      <Modal
-        isOpen={selectedRule !== null}
-        onClose={() => setSelectedRule(null)}
-        title={selectedRule?.title}
-        actions={
-          <Button variant="outline" onClick={() => setSelectedRule(null)}>
-            Cerrar
-          </Button>
-        }
-      >
-        {selectedRule && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Badge tone="brand">Gobernanza</Badge>
-            </div>
-            <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-ink-400 mb-1.5">
-                Descripción completa de la regla
-              </p>
-              <p className="text-sm text-ink-700 bg-slate-50 p-4 rounded-xl border border-slate-200/80 leading-relaxed">
-                {selectedRule.description}
-              </p>
-            </div>
-          </div>
-        )}
       </Modal>
     </div>
   );
