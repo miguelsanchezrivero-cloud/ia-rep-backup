@@ -214,32 +214,42 @@ export function Dashboard() {
           <p className="mb-3 text-xs font-bold uppercase tracking-wider text-ink-400">
             Reglas de Gobernanza Activas
           </p>
-          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-            {governanceRules.slice(0, 6).map((r, index) => {
-              const style = ruleStyles[index % ruleStyles.length];
-              return (
-                <div
-                  key={r.id}
-                  onClick={() => setSelectedRule(r)}
-                  className={`group flex items-center justify-between gap-2.5 rounded-xl border p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer ${style.bg}`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <ShieldCheck
-                      size={18}
-                      className={`shrink-0 ${style.icon}`}
-                    />
-                    <p className="text-xs font-semibold line-clamp-2 leading-snug">
-                      {r.title}
-                    </p>
-                  </div>
-                  <ChevronRight
-                    size={14}
-                    className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
-                  />
-                </div>
-              );
-            })}
-          </div>
+
+          {governanceRules.filter((r) => r.enforced).length === 0 ? (
+            <p className="text-xs text-ink-400 italic">
+              No hay reglas de gobernanza activas actualmente.
+            </p>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-3">
+              {governanceRules
+                .filter((r) => r.enforced)
+                .slice(0, 6)
+                .map((r, index) => {
+                  const style = ruleStyles[index % ruleStyles.length];
+                  return (
+                    <div
+                      key={r.id}
+                      onClick={() => setSelectedRule(r)}
+                      className={`group flex items-center justify-between gap-2.5 rounded-xl border p-3.5 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 cursor-pointer ${style.bg}`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <ShieldCheck
+                          size={18}
+                          className={`shrink-0 ${style.icon}`}
+                        />
+                        <p className="text-xs font-semibold line-clamp-2 leading-snug">
+                          {r.title}
+                        </p>
+                      </div>
+                      <ChevronRight
+                        size={14}
+                        className="shrink-0 opacity-40 group-hover:opacity-100 transition-opacity"
+                      />
+                    </div>
+                  );
+                })}
+            </div>
+          )}
         </div>
       </Card>
 
