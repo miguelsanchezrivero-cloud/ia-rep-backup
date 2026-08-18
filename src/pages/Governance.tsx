@@ -1,56 +1,42 @@
-import { Shield, Ban, BookLock, Scale } from 'lucide-react'
-import { Badge, Card, PageHeader } from '../components/ui'
-import { useAppStore } from '../store/useAppStore'
+import { useState } from 'react'
+import { cn } from '../lib/cn'
+
+const tabs = [
+  { id: 'sistema', label: 'Gobernanza del Sistema', desc: 'Aquí se define la estructura organizacional y las aprobaciones' },
+  { id: 'productos', label: 'Gobernanza de los Productos', desc: 'Aquí se crean los productos, se arman los portafolios de productos y se define quien es responsable por cada portafolio o por cada producto' },
+  { id: 'campanas', label: 'Gobernanza de las Campañas', desc: 'Aquí se define el flujo de creación y aprobaciones de las campañas' },
+  { id: 'informacion', label: 'Gobernanza de las Información', desc: 'Aquí se define de donde toma la información la IA (lo que tu llamas "sin terceros")' },
+]
 
 export function Governance() {
-  const rules = useAppStore((s) => s.governanceRules)
+  const [active, setActive] = useState('sistema')
+  const activeTab = tabs.find((t) => t.id === active)!
 
   return (
-    <div className="animate-fade-up">
-      <PageHeader
-        title="Capa de gobernanza"
-        subtitle="Prioridad 1 del sistema. Sin gobernanza no hay respuesta. Luego campaña. Luego solo documentación interna."
-      />
-
-      <div className="mb-6 grid gap-3 md:grid-cols-3">
-        {[
-          { icon: Scale, t: '1. Gobernanza', d: 'Políticas, ética promocional y compliance.' },
-          { icon: BookLock, t: '2. Campaña', d: 'Script y mensajes exactos del gerente de producto.' },
-          { icon: Ban, t: '3. Sin terceros', d: 'RAG solo en docs aprobados. Anti-alucinación + escalamiento.' },
-        ].map((x) => (
-          <Card key={x.t} className="p-5">
-            <x.icon className="text-brand-700" size={22} />
-            <p className="mt-3 text-sm font-semibold">{x.t}</p>
-            <p className="mt-1 text-xs text-ink-500">{x.d}</p>
-          </Card>
-        ))}
+    <div className="flex flex-col h-full animate-in fade-in duration-300">
+      <div className="bg-white/50 backdrop-blur px-8 py-4 flex items-center justify-between border-b border-slate-200">
+        <h1 className="text-3xl text-[#1e3a8a]">Gobernanza</h1>
+        <p className="text-[#1e3a8a] max-w-2xl text-center text-sm">{activeTab.desc}</p>
+        <div className="w-[120px]"></div> {/* spacer for centering */}
       </div>
-
-      <div className="space-y-3">
-        {rules.map((r) => (
-          <Card key={r.id} className="flex items-start gap-4 p-5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-800">
-              <Shield size={18} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="font-semibold text-ink-900">{r.title}</p>
-                <Badge tone="brand">Prioridad {r.priority}</Badge>
-                {r.enforced ? <Badge tone="success">Enforced</Badge> : <Badge>Off</Badge>}
-              </div>
-              <p className="mt-1 text-sm text-ink-600">{r.description}</p>
-            </div>
-          </Card>
-        ))}
+      <div className="p-8">
+        <div className="flex flex-wrap gap-4">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActive(tab.id)}
+              className={cn(
+                'px-6 py-4 rounded-3xl text-sm font-medium transition-colors w-48 text-left h-24 flex items-center',
+                active === tab.id
+                  ? 'bg-[#1e3a8a] text-white shadow-md'
+                  : 'bg-white text-[#1e3a8a] shadow-sm hover:shadow-md'
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
-
-      <Card className="mt-6 p-5">
-        <p className="text-sm font-semibold">Respuesta canónica fuera de límites</p>
-        <blockquote className="mt-3 rounded-2xl bg-ink-50 p-4 text-sm italic leading-relaxed text-ink-700">
-          “No dispongo de esa información en este momento, pero haré la pregunta al departamento médico, legal u otro
-          correspondiente y le traeré la respuesta en su próxima visita.”
-        </blockquote>
-      </Card>
     </div>
   )
 }
