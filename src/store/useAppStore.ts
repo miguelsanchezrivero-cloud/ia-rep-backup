@@ -358,13 +358,20 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
-  startDoctorVisit: (campaignId, doctorId, channel = "whatsapp") => {
+  startDoctorVisit: (
+    campaignId: string,
+    doctorId: string,
+    channel: Channel = "whatsapp",
+    avatarId?: string,
+  ) => {
     const s = get();
     const campaign = s.campaigns.find((c) => c.id === campaignId);
     const doctor = s.doctors.find((d) => d.id === doctorId);
     if (!campaign || !doctor) return;
-    const avatar =
-      s.avatars.find((a) => a.id === campaign.avatarId) ?? s.avatars[0];
+    const avatar = avatarId
+      ? (s.avatars.find((a) => a.id === avatarId) ?? s.avatars[0])
+      : (s.avatars.find((a) => a.id === campaign.avatarId) ?? s.avatars[0]);
+      
     const realRep = s.realReps.find((r) => r.id === doctor.realRepId) ?? null;
 
     const session: VisitSession = {
@@ -413,14 +420,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     });
   },
 
-  startPharmacyVisit: (campaignId, pharmacyId) => {
+  startPharmacyVisit: (
+    campaignId: string,
+    pharmacyId: string,
+    avatarId?: string,
+  ) => {
     const s = get();
     const campaign = s.campaigns.find((c) => c.id === campaignId);
     const pharmacy = s.pharmacyStaff.find((p) => p.id === pharmacyId);
     if (!campaign || !pharmacy) return;
-    const avatar =
-      s.avatars.find((a) => a.id === campaign.avatarId) ?? s.avatars[0];
-
+    const avatar = avatarId
+      ? (s.avatars.find((a) => a.id === avatarId) ?? s.avatars[0])
+      : (s.avatars.find((a) => a.id === campaign.avatarId) ?? s.avatars[0]);
     const session: VisitSession = {
       id: uid("visit"),
       campaignId,
