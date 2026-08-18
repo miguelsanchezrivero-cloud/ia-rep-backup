@@ -46,7 +46,10 @@ export function Credits() {
           </div>
           <div className="divide-y divide-ink-100">
             {credits.transactions.map((t) => (
-              <div key={t.id} className="flex items-center justify-between gap-3 px-5 py-3">
+              <div
+                key={t.id}
+                className="flex items-center justify-between gap-3 px-5 py-3 transition-all duration-200 hover:bg-ink-50/50 hover:-translate-x-0.5 cursor-pointer"
+              >
                 <div>
                   <p className="text-sm font-medium text-ink-800">{t.label}</p>
                   <p className="text-xs text-ink-400">{t.at}</p>

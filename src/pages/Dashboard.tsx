@@ -40,7 +40,10 @@ export function Dashboard() {
               { n: '02', t: 'Campaña', d: 'Script del gerente de producto, sin desviaciones.' },
               { n: '03', t: 'Corpus interno', d: 'Solo docs de la compañía. Cero terceros. Anti-alucinación.' },
             ].map((p) => (
-              <div key={p.n} className="rounded-2xl border border-ink-100 bg-ink-50/60 p-4">
+              <div
+                key={p.n}
+                className="rounded-2xl border border-ink-100 bg-ink-50/60 p-4 transition-all duration-200 hover:border-brand-200 hover:bg-brand-50/40 hover:shadow-md hover:-translate-y-0.5 cursor-pointer"
+              >
                 <p className="font-display text-2xl text-brand-700">{p.n}</p>
                 <p className="mt-1 text-sm font-semibold text-ink-900">{p.t}</p>
                 <p className="mt-1 text-xs leading-relaxed text-ink-500">{p.d}</p>
@@ -49,7 +52,10 @@ export function Dashboard() {
           </div>
           <div className="grid gap-2 border-t border-ink-100 px-5 py-4 sm:grid-cols-2">
             {governanceRules.slice(0, 4).map((r) => (
-              <div key={r.id} className="flex items-start gap-2 rounded-xl bg-white p-2">
+              <div
+                key={r.id}
+                className="flex items-start gap-2 rounded-xl bg-white p-2 transition-all duration-200 hover:bg-brand-50/40 hover:shadow-sm hover:-translate-y-0.5 cursor-pointer"
+              >
                 <ShieldCheck size={16} className="mt-0.5 text-brand-600" />
                 <div>
                   <p className="text-xs font-semibold text-ink-800">{r.title}</p>
@@ -88,7 +94,10 @@ export function Dashboard() {
             {dispatches.map((d) => {
               const camp = campaigns.find((c) => c.id === d.campaignId)
               return (
-                <div key={d.id} className="flex items-center justify-between gap-3 px-5 py-3">
+                <div
+                  key={d.id}
+                  className="flex items-center justify-between gap-3 px-5 py-3 transition-all duration-200 hover:bg-ink-50/50 hover:-translate-x-0.5 cursor-pointer"
+                >
                   <div>
                     <p className="text-sm font-medium text-ink-800">{camp?.name ?? d.campaignId}</p>
                     <p className="text-xs text-ink-500">{d.recipientCount} dest. · {d.channel} · -{d.costCredits} cr</p>
@@ -110,7 +119,10 @@ export function Dashboard() {
               { t: 'Médicos no alcanzados', d: 'Visita multiproducto con CTA de muestra por producto.' },
               { t: 'Dependientes de farmacia', d: 'Entrenamiento, recordación de marca y certificado.' },
             ].map((x) => (
-              <div key={x.t} className="rounded-2xl border border-ink-100 p-4">
+              <div
+                key={x.t}
+                className="rounded-2xl border border-ink-100 p-4 transition-all duration-200 hover:border-brand-200 hover:bg-brand-50/30 hover:shadow-sm hover:-translate-y-0.5 cursor-pointer"
+              >
                 <p className="text-sm font-semibold text-ink-900">{x.t}</p>
                 <p className="mt-1 text-xs text-ink-500">{x.d}</p>
               </div>

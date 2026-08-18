@@ -32,7 +32,7 @@ export function Analytics() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="p-5">
+        <Card interactive className="p-5">
           <p className="mb-4 text-sm font-semibold">Aperturas y CTAs (diario)</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -49,7 +49,7 @@ export function Analytics() {
           </div>
         </Card>
 
-        <Card className="p-5">
+        <Card interactive className="p-5">
           <p className="mb-4 text-sm font-semibold">Por canal</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -66,7 +66,7 @@ export function Analytics() {
           </div>
         </Card>
 
-        <Card className="p-5 lg:col-span-2">
+        <Card interactive className="p-5 lg:col-span-2">
           <p className="mb-4 text-sm font-semibold">Aperturas por especialidad / farmacia</p>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">

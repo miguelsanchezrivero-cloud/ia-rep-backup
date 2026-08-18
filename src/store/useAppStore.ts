@@ -52,6 +52,7 @@ interface AppState {
   upsertAvatar: (avatar: AvatarConfig) => void
   upsertCampaign: (campaign: Campaign) => void
   setCampaignStatus: (id: string, status: CampaignStatus) => void
+  setRuleEnforcement: (id: string, enforced: boolean) => void
   topUpCredits: (amount: number) => void
   dispatchCampaign: (campaignId: string, channel: Channel) => { ok: boolean; message: string }
   startTestSession: (campaignId: string) => void
@@ -126,6 +127,13 @@ export const useAppStore = create<AppState>((set, get) => ({
               approvedAt: status === 'approved' || status === 'live' ? new Date().toISOString() : c.approvedAt,
             }
           : c,
+      ),
+    })),
+
+  setRuleEnforcement: (id, enforced) =>
+    set((s) => ({
+      governanceRules: s.governanceRules.map((r) =>
+        r.id === id ? { ...r, enforced } : r,
       ),
     })),
 

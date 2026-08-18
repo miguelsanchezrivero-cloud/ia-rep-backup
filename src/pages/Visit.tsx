@@ -103,7 +103,7 @@ export function Visit() {
             </div>
           </Card>
 
-          <Card className="p-5">
+          <Card interactive className="p-5">
             <div className="flex items-center gap-3">
               <AvatarFace avatar={avatar} size="lg" />
               <div>
@@ -138,7 +138,7 @@ export function Visit() {
             ) : null}
           </Card>
 
-          <Card className="p-4 text-xs leading-relaxed text-ink-500">
+          <Card interactive className="p-4 text-xs leading-relaxed text-ink-500">
             Pruebe preguntas dentro de campaña (“¿qué dice el estudio?”) y fuera de límites
             (“compáralo con la competencia en internet”) para ver el escalamiento anti-alucinación.
           </Card>

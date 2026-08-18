@@ -1,8 +1,15 @@
-import { Badge, Card, PageHeader } from '../components/ui'
+import { useState } from 'react'
+import { Badge, Card, PageHeader, Drawer } from '../components/ui'
 import { useAppStore } from '../store/useAppStore'
 
 export function Crm() {
   const { doctors, pharmacyStaff, realReps, campaigns } = useAppStore()
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null)
+  const [selectedPharmacyId, setSelectedPharmacyId] = useState<string | null>(null)
+
+  const selectedDoctor = selectedDoctorId ? doctors.find((d) => d.id === selectedDoctorId) : null
+  const selectedPharmacy = selectedPharmacyId ? pharmacyStaff.find((p) => p.id === selectedPharmacyId) : null
+  const doctorRealRep = selectedDoctor ? realReps.find((r) => r.id === selectedDoctor.realRepId) : null
 
   return (
     <div className="animate-fade-up">
@@ -63,7 +70,15 @@ export function Crm() {
             </thead>
             <tbody className="divide-y divide-ink-100">
               {doctors.map((d) => (
-                <tr key={d.id} className="hover:bg-ink-50/50">
+                <tr
+                  key={d.id}
+                  onClick={() => setSelectedDoctorId(d.id)}
+                  className={`cursor-pointer transition-all duration-200 ${
+                    selectedDoctorId === d.id
+                      ? 'bg-brand-50'
+                      : 'hover:bg-ink-50/50 hover:-translate-x-0.5'
+                  }`}
+                >
                   <td className="px-4 py-3">
                     <p className="font-medium">{d.title} {d.name}</p>
                     <p className="text-xs text-ink-400">{d.email ?? d.phone ?? '—'}</p>
@@ -96,7 +111,15 @@ export function Crm() {
         </div>
         <div className="divide-y divide-ink-100">
           {pharmacyStaff.map((p) => (
-            <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3">
+            <div
+              key={p.id}
+              onClick={() => setSelectedPharmacyId(p.id)}
+              className={`flex flex-wrap items-center justify-between gap-2 px-5 py-3 cursor-pointer transition-all duration-200 ${
+                selectedPharmacyId === p.id
+                  ? 'bg-brand-50'
+                  : 'hover:bg-ink-50/50 hover:-translate-x-0.5'
+              }`}
+            >
               <div>
                 <p className="font-medium">{p.name}</p>
                 <p className="text-xs text-ink-500">{p.pharmacy} · {p.city} · {p.role}</p>
@@ -121,6 +144,128 @@ export function Crm() {
           ))}
         </ul>
       </Card>
+
+      {selectedDoctor && (
+        <Drawer
+          isOpen={!!selectedDoctorId}
+          onClose={() => setSelectedDoctorId(null)}
+          title={`${selectedDoctor.title} ${selectedDoctor.name}`}
+        >
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Información de contacto</p>
+              <div className="mt-2 space-y-1 text-sm">
+                <p>
+                  <span className="text-ink-600">Email:</span>{' '}
+                  <span className="font-medium text-ink-900">{selectedDoctor.email ?? '—'}</span>
+                </p>
+                <p>
+                  <span className="text-ink-600">Teléfono:</span>{' '}
+                  <span className="font-medium text-ink-900">{selectedDoctor.phone ?? '—'}</span>
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Ubicación y cobertura</p>
+              <div className="mt-2 space-y-1 text-sm">
+                <p>
+                  <span className="text-ink-600">Especialidad:</span>{' '}
+                  <span className="font-medium text-ink-900">{selectedDoctor.specialty}</span>
+                </p>
+                <p>
+                  <span className="text-ink-600">Zona:</span>{' '}
+                  <span className="font-medium text-ink-900">{selectedDoctor.zone}</span>
+                </p>
+                <p className="mt-2">
+                  <Badge tone={selectedDoctor.covered ? 'success' : 'warn'}>
+                    {selectedDoctor.covered ? 'Cubierto' : 'No alcanzado'}
+                  </Badge>
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Visitador real asignado</p>
+              <div className="mt-2">
+                {doctorRealRep ? (
+                  <div className="rounded-xl border border-ink-200 bg-ink-50/50 p-3">
+                    <p className="font-semibold text-ink-900">{doctorRealRep.name}</p>
+                    <p className="text-xs text-ink-500">{doctorRealRep.territory}</p>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {doctorRealRep.specialtyFocus.map((s) => (
+                        <Badge key={s} size="sm">
+                          {s}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-sm text-ink-500">—</p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Tags y categorías</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {selectedDoctor.tags.length > 0 ? (
+                  selectedDoctor.tags.map((t) => <Badge key={t}>{t}</Badge>)
+                ) : (
+                  <p className="text-sm text-ink-500">Sin tags asignados</p>
+                )}
+              </div>
+            </div>
+
+            {selectedDoctor.lastVisitSummary && (
+              <div className="border-t border-ink-100 pt-3">
+                <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Última visita</p>
+                <p className="mt-2 text-sm text-ink-600">{selectedDoctor.lastVisitSummary}</p>
+              </div>
+            )}
+          </div>
+        </Drawer>
+      )}
+
+      {selectedPharmacy && (
+        <Drawer
+          isOpen={!!selectedPharmacyId}
+          onClose={() => setSelectedPharmacyId(null)}
+          title={selectedPharmacy.name}
+        >
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Información</p>
+              <div className="mt-2 space-y-1 text-sm">
+                <p>
+                  <span className="text-ink-600">Farmacia:</span>{' '}
+                  <span className="font-medium text-ink-900">{selectedPharmacy.pharmacy}</span>
+                </p>
+                <p>
+                  <span className="text-ink-600">Ciudad:</span>{' '}
+                  <span className="font-medium text-ink-900">{selectedPharmacy.city}</span>
+                </p>
+                <p>
+                  <span className="text-ink-600">Rol:</span>{' '}
+                  <span className="font-medium text-ink-900">{selectedPharmacy.role}</span>
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Estado de entrenamiento</p>
+              <div className="mt-2">
+                <Badge tone="brand">En entrenamiento</Badge>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-ink-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500 mb-2">Cursos activos</p>
+              <p className="text-sm text-ink-600">Actualizaciones disponibles para dependientes de farmacia</p>
+            </div>
+          </div>
+        </Drawer>
+      )}
     </div>
   )
 }

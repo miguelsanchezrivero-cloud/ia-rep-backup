@@ -1,9 +1,9 @@
 import { Shield, Ban, BookLock, Scale } from 'lucide-react'
-import { Badge, Card, PageHeader } from '../components/ui'
+import { Badge, Card, PageHeader, Button } from '../components/ui'
 import { useAppStore } from '../store/useAppStore'
 
 export function Governance() {
-  const rules = useAppStore((s) => s.governanceRules)
+  const { governanceRules, setRuleEnforcement } = useAppStore()
 
   return (
     <div className="animate-fade-up">
@@ -27,18 +27,37 @@ export function Governance() {
       </div>
 
       <div className="space-y-3">
-        {rules.map((r) => (
-          <Card key={r.id} className="flex items-start gap-4 p-5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-800">
-              <Shield size={18} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="font-semibold text-ink-900">{r.title}</p>
-                <Badge tone="brand">Prioridad {r.priority}</Badge>
-                {r.enforced ? <Badge tone="success">Enforced</Badge> : <Badge>Off</Badge>}
+        {governanceRules.map((r) => (
+          <Card
+            key={r.id}
+            className="flex items-start justify-between gap-4 p-5 transition-all duration-200"
+          >
+            <div className="flex items-start gap-4">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-800">
+                <Shield size={18} />
               </div>
-              <p className="mt-1 text-sm text-ink-600">{r.description}</p>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="font-semibold text-ink-900">{r.title}</p>
+                  <Badge tone="brand">Prioridad {r.priority}</Badge>
+                </div>
+                <p className="mt-1 text-sm text-ink-600">{r.description}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {r.enforced ? (
+                <Badge tone="success">Activo</Badge>
+              ) : (
+                <Badge>Desactivado</Badge>
+              )}
+              <Button
+                size="sm"
+                variant={r.enforced ? 'secondary' : 'outline'}
+                onClick={() => setRuleEnforcement(r.id, !r.enforced)}
+                className="whitespace-nowrap"
+              >
+                {r.enforced ? 'Desactivar' : 'Activar'}
+              </Button>
             </div>
           </Card>
         ))}

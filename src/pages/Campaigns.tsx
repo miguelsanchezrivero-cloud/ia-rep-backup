@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Badge, Button, Card, Input, Label, PageHeader, Select, Textarea } from '../components/ui'
+import { Badge, Button, Card, Input, Label, PageHeader, Select, Textarea, Drawer, ConfirmDialog } from '../components/ui'
 import { estimateAudienceSize } from '../lib/audience'
 import { useAppStore } from '../store/useAppStore'
 import type { Campaign, CampaignStatus, Channel, TargetAudience } from '../types'
@@ -20,6 +20,9 @@ export function Campaigns() {
   const [channel, setChannel] = useState<Channel>('whatsapp')
   const [msg, setMsg] = useState('')
   const [creating, setCreating] = useState(false)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [showStatusConfirm, setShowStatusConfirm] = useState(false)
+  const [pendingStatus, setPendingStatus] = useState<CampaignStatus | null>(null)
 
   const campaign = store.campaigns.find((c) => c.id === selected) ?? store.campaigns[0]
 
@@ -92,8 +95,15 @@ export function Campaigns() {
           {store.campaigns.map((c) => (
             <button
               key={c.id}
-              onClick={() => setSelected(c.id)}
-              className={`w-full rounded-2xl border p-4 text-left transition ${selected === c.id ? 'border-brand-600 bg-brand-50' : 'border-ink-200 bg-white hover:border-ink-300'}`}
+              onClick={() => {
+                setSelected(c.id)
+                setIsDrawerOpen(true)
+              }}
+              className={`w-full rounded-2xl border p-4 text-left transition-all duration-200 ${
+                selected === c.id
+                  ? 'border-brand-600 bg-brand-50 shadow-md'
+                  : 'border-ink-200 bg-white hover:border-ink-300 hover:shadow-sm hover:-translate-y-0.5'
+              }`}
             >
               <div className="flex items-center justify-between gap-2">
                 <p className="text-sm font-semibold text-ink-900">{c.name}</p>
@@ -104,106 +114,187 @@ export function Campaigns() {
           ))}
         </div>
 
-        <Card className="space-y-4 p-5 lg:col-span-2">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h2 className="text-xl font-semibold">{campaign.name}</h2>
-              <p className="text-sm text-ink-500">
-                Avatar: {store.avatars.find((a) => a.id === campaign.avatarId)?.name} · Audiencia estimada: {audienceCount}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <Link to="/prueba" onClick={() => store.startTestSession(campaign.id)}>
-                <Button variant="outline">Probar campaña</Button>
-              </Link>
-              <Button variant="secondary" onClick={() => store.setCampaignStatus(campaign.id, 'approved')}>Go final</Button>
-            </div>
-          </div>
-
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Estado">
-              <Select
-                value={campaign.status}
-                onChange={(e) => store.setCampaignStatus(campaign.id, e.target.value as CampaignStatus)}
-              >
-                {Object.keys(statusTone).map((s) => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </Select>
-            </Field>
-            <Field label="Audiencia">
-              <Select
-                value={campaign.audience}
-                onChange={(e) =>
-                  store.upsertCampaign({ ...campaign, audience: e.target.value as TargetAudience })
-                }
-              >
-                <option value="covered_doctors">Médicos cubiertos</option>
-                <option value="uncovered_doctors">Médicos no alcanzados</option>
-                <option value="pharmacy_staff">Dependientes farmacia</option>
-              </Select>
-            </Field>
-          </div>
-
-          <div className="rounded-2xl bg-ink-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Script aprobado</p>
-            <ScriptLine k="Apertura" v={campaign.script.opening} />
-            <ScriptLine k="Producto" v={campaign.script.productPresentation} />
-            <ScriptLine k="Evidencia" v={campaign.script.clinicalEvidence} />
-            <ScriptLine k="Sondeo" v={campaign.script.probingQuestion} />
-            <ScriptLine k="Cierre" v={campaign.script.closing} />
-          </div>
-
-          <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-500">Filtros CRM</p>
-            <div className="flex flex-wrap gap-2 text-xs">
-              {campaign.filters.specialties?.map((s) => <Badge key={s} tone="brand">{s}</Badge>)}
-              {campaign.filters.zones?.map((s) => <Badge key={s}>{s}</Badge>)}
-              {campaign.filters.tags?.map((s) => <Badge key={s} tone="warn">#{s}</Badge>)}
-              {campaign.filters.coveredOnly ? <Badge tone="success">solo cubiertos</Badge> : null}
-              {campaign.filters.uncoveredOnly ? <Badge tone="warn">solo no cubiertos</Badge> : null}
-              {campaign.multiProduct ? <Badge>multiproducto</Badge> : null}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-end gap-3 border-t border-ink-100 pt-4">
-            <div className="min-w-40 flex-1">
-              <Label>Canal de envío</Label>
-              <Select value={channel} onChange={(e) => setChannel(e.target.value as Channel)}>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="email">Email</option>
-                <option value="sms">SMS</option>
-              </Select>
-            </div>
-            <div>
-              <p className="mb-1 text-xs text-ink-500">
-                Costo est.: ${(audienceCount * store.credits.costPerVisit).toFixed(2)}
-              </p>
-              <Button onClick={dispatch}>Enviar links a audiencia</Button>
-            </div>
-          </div>
-
-          <div>
-            <Label>Nombre campaña</Label>
-            <Input
-              value={campaign.name}
-              onChange={(e) => store.upsertCampaign({ ...campaign, name: e.target.value })}
-            />
-          </div>
-          <div>
-            <Label>Pregunta de sondeo</Label>
-            <Textarea
-              value={campaign.script.probingQuestion}
-              onChange={(e) =>
-                store.upsertCampaign({
-                  ...campaign,
-                  script: { ...campaign.script, probingQuestion: e.target.value },
-                })
-              }
-            />
-          </div>
-        </Card>
+        <div className="lg:col-span-2">
+          {!isDrawerOpen ? (
+            <Card className="flex min-h-[480px] items-center justify-center p-8 text-center text-sm text-ink-500">
+              Selecciona una campaña para ver los detalles
+            </Card>
+          ) : null}
+        </div>
       </div>
+
+      {campaign && (
+        <Drawer
+          isOpen={isDrawerOpen}
+          onClose={() => setIsDrawerOpen(false)}
+          title={campaign.name}
+          action={
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setIsDrawerOpen(false)}>
+                Cerrar
+              </Button>
+            </div>
+          }
+        >
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Información</p>
+              <div className="mt-2 space-y-1 text-sm">
+                <p>
+                  <span className="text-ink-600">Avatar:</span>{' '}
+                  <span className="font-medium text-ink-900">
+                    {store.avatars.find((a) => a.id === campaign.avatarId)?.name}
+                  </span>
+                </p>
+                <p>
+                  <span className="text-ink-600">Audiencia estimada:</span>{' '}
+                  <span className="font-medium text-ink-900">{audienceCount}</span>
+                </p>
+                <p>
+                  <span className="text-ink-600">Costo est.:</span>{' '}
+                  <span className="font-medium text-ink-900">
+                    ${(audienceCount * store.credits.costPerVisit).toFixed(2)}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <Field label="Estado">
+                <Select
+                  value={campaign.status}
+                  onChange={(e) => {
+                    setPendingStatus(e.target.value as CampaignStatus)
+                    setShowStatusConfirm(true)
+                  }}
+                >
+                  {Object.keys(statusTone).map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+
+            <div>
+              <Field label="Audiencia">
+                <Select
+                  value={campaign.audience}
+                  onChange={(e) =>
+                    store.upsertCampaign({ ...campaign, audience: e.target.value as TargetAudience })
+                  }
+                >
+                  <option value="covered_doctors">Médicos cubiertos</option>
+                  <option value="uncovered_doctors">Médicos no alcanzados</option>
+                  <option value="pharmacy_staff">Dependientes farmacia</option>
+                </Select>
+              </Field>
+            </div>
+
+            <div className="rounded-2xl bg-ink-50 p-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Script aprobado</p>
+              <ScriptLine k="Apertura" v={campaign.script.opening} />
+              <ScriptLine k="Producto" v={campaign.script.productPresentation} />
+              <ScriptLine k="Evidencia" v={campaign.script.clinicalEvidence} />
+              <ScriptLine k="Sondeo" v={campaign.script.probingQuestion} />
+              <ScriptLine k="Cierre" v={campaign.script.closing} />
+            </div>
+
+            <div>
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-500">Filtros CRM</p>
+              <div className="flex flex-wrap gap-2 text-xs">
+                {campaign.filters.specialties?.map((s) => (
+                  <Badge key={s} tone="brand">
+                    {s}
+                  </Badge>
+                ))}
+                {campaign.filters.zones?.map((s) => (
+                  <Badge key={s}>{s}</Badge>
+                ))}
+                {campaign.filters.tags?.map((s) => (
+                  <Badge key={s} tone="warn">
+                    #{s}
+                  </Badge>
+                ))}
+                {campaign.filters.coveredOnly ? <Badge tone="success">solo cubiertos</Badge> : null}
+                {campaign.filters.uncoveredOnly ? <Badge tone="warn">solo no cubiertos</Badge> : null}
+                {campaign.multiProduct ? <Badge>multiproducto</Badge> : null}
+              </div>
+            </div>
+
+            <div className="space-y-2 border-t border-ink-100 pt-3">
+              <div>
+                <Field label="Canal de envío">
+                  <Select value={channel} onChange={(e) => setChannel(e.target.value as Channel)}>
+                    <option value="whatsapp">WhatsApp</option>
+                    <option value="email">Email</option>
+                    <option value="sms">SMS</option>
+                  </Select>
+                </Field>
+              </div>
+
+              <div>
+                <Field label="Nombre campaña">
+                  <Input
+                    value={campaign.name}
+                    onChange={(e) => store.upsertCampaign({ ...campaign, name: e.target.value })}
+                  />
+                </Field>
+              </div>
+
+              <div>
+                <Field label="Pregunta de sondeo">
+                  <Textarea
+                    value={campaign.script.probingQuestion}
+                    onChange={(e) =>
+                      store.upsertCampaign({
+                        ...campaign,
+                        script: { ...campaign.script, probingQuestion: e.target.value },
+                      })
+                    }
+                    rows={3}
+                  />
+                </Field>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Link to="/prueba" onClick={() => store.startTestSession(campaign.id)} className="flex-1">
+                  <Button variant="outline" className="w-full" size="sm">
+                    Probar campaña
+                  </Button>
+                </Link>
+                <Button onClick={dispatch} className="flex-1" size="sm">
+                  Enviar
+                </Button>
+              </div>
+
+              {msg && (
+                <div className="rounded-xl border border-brand-200 bg-brand-50 px-3 py-2 text-xs text-brand-900">
+                  {msg}
+                </div>
+              )}
+            </div>
+          </div>
+        </Drawer>
+      )}
+
+      <ConfirmDialog
+        isOpen={showStatusConfirm}
+        onClose={() => {
+          setShowStatusConfirm(false)
+          setPendingStatus(null)
+        }}
+        title="Cambiar estado de campaña"
+        description={`¿Cambiar estado a "${pendingStatus}"?`}
+        confirmText="Cambiar"
+        cancelText="Cancelar"
+        onConfirm={() => {
+          if (pendingStatus) {
+            store.setCampaignStatus(campaign.id, pendingStatus)
+          }
+        }}
+      />
     </div>
   )
 }

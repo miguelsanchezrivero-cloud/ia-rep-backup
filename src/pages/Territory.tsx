@@ -15,7 +15,7 @@ export function Territory() {
         {territoryInsights.map((t) => {
           const rep = realReps.find((r) => r.id === t.repId)
           return (
-            <Card key={t.repId} className="p-5">
+            <Card key={t.repId} interactive className="p-5">
               <div className="flex flex-wrap items-end justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">{t.zone}</p>
@@ -38,7 +38,10 @@ export function Territory() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Top especialidades</p>
                   <div className="mt-2 space-y-2">
                     {t.topSpecialties.map((s) => (
-                      <div key={s.name} className="flex items-center justify-between rounded-xl bg-ink-50 px-3 py-2 text-sm">
+                      <div
+                        key={s.name}
+                        className="flex items-center justify-between rounded-xl bg-ink-50 px-3 py-2 text-sm transition-all duration-200 hover:bg-ink-100 hover:shadow-sm cursor-pointer"
+                      >
                         <span>{s.name}</span>
                         <span className="font-semibold">{s.count}</span>
                       </div>
@@ -49,7 +52,10 @@ export function Territory() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-ink-500">Acciones sugeridas</p>
                   <ul className="mt-2 space-y-2">
                     {t.suggestedActions.map((a) => (
-                      <li key={a} className="rounded-xl border border-brand-100 bg-brand-50/40 px-3 py-2 text-sm text-ink-700">
+                      <li
+                        key={a}
+                        className="rounded-xl border border-brand-100 bg-brand-50/40 px-3 py-2 text-sm text-ink-700 transition-all duration-200 hover:border-brand-300 hover:bg-brand-100/30 hover:shadow-sm cursor-pointer"
+                      >
                         {a}
                       </li>
                     ))}
