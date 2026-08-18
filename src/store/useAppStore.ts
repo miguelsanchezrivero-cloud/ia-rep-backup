@@ -31,9 +31,6 @@ import { estimateAudienceSize, filterDoctors, filterPharmacy } from '../lib/audi
 import { generateGovernedReply, startVisitOpening } from '../lib/governance'
 
 interface AppState {
-  profile: { name: string; role: string }
-  setProfile: (profile: { name: string; role: string }) => void
-
   governanceRules: typeof governanceRules
   products: typeof products
   documents: CompanyDocument[]
@@ -81,9 +78,6 @@ function msg(role: ConversationMessage['role'], content: string, extra?: Partial
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
-  profile: { name: 'Esteban Abad', role: 'Gerente de Marketing' },
-  setProfile: (profile) => set({ profile }),
-
   governanceRules,
   products,
   documents: seedDocuments,
