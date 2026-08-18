@@ -15,7 +15,6 @@ import {
   CheckCircle2,
   ChevronRight,
   ArrowUpRight,
-  Info,
   X,
 } from "lucide-react";
 import { Badge, Button, Card, Modal, PageHeader } from "../components/ui";

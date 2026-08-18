@@ -1,13 +1,11 @@
 import { useState } from "react";
 import {
   Wallet,
-  ArrowUpRight,
   Plus,
   DollarSign,
   TrendingUp,
   Receipt,
   Sparkles,
-  ShieldCheck,
   Building2,
 } from "lucide-react";
 import {
@@ -17,20 +15,12 @@ import {
   Input,
   Label,
   PageHeader,
-  Stat,
 } from "../components/ui";
 import { useAppStore } from "../store/useAppStore";
 
 export function Credits() {
   const { credits, topUpCredits } = useAppStore();
   const [amount, setAmount] = useState(1000);
-
-  // Paleta de degradados para las tarjetas de estadísticas (estilo consistente con Dashboard/Analytics)
-  const statCardStyles = [
-    "border-emerald-100 bg-gradient-to-br from-emerald-50/60 via-white to-white text-emerald-700",
-    "border-blue-100 bg-gradient-to-br from-blue-50/60 via-white to-white text-blue-700",
-    "border-violet-100 bg-gradient-to-br from-violet-50/60 via-white to-white text-violet-700",
-  ];
 
   return (
     <div className="animate-fade-up space-y-6">

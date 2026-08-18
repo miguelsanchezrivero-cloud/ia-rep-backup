@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { Badge, Card, Input, PageHeader } from "../components/ui";
 import { useAppStore } from "../store/useAppStore";
-import type { Campaign } from "../types";
 
 export function Crm() {
   const { doctors, pharmacyStaff, realReps, campaigns } = useAppStore();

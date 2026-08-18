@@ -22,11 +22,11 @@ import {
   Layers,
   Stethoscope,
 } from "lucide-react";
-import { Badge, Button, Card, PageHeader, Stat } from "../components/ui";
+import { Button, Card, PageHeader } from "../components/ui";
 import { useAppStore } from "../store/useAppStore";
 
 export function Analytics() {
-  const { analytics, campaigns } = useAppStore();
+  const { analytics } = useAppStore();
 
   // Estado interactivo para filtrar o enfocar métricas y canales (estilo compatible con el resto de la app)
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);

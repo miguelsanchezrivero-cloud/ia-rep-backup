@@ -9,10 +9,7 @@ import {
   BarChart3,
   Sparkles,
   ChevronRight,
-  Phone,
-  Mail,
   Briefcase,
-  Building2,
   Award,
 } from "lucide-react";
 import { Badge, Button, Card, PageHeader, Modal, Stat } from "../components/ui";

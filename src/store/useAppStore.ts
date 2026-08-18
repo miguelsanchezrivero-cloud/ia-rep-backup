@@ -69,8 +69,13 @@ interface AppState {
     campaignId: string,
     doctorId: string,
     channel?: Channel,
+    avatarId?: string,
   ) => void;
-  startPharmacyVisit: (campaignId: string, pharmacyId: string) => void;
+  startPharmacyVisit: (
+    campaignId: string,
+    pharmacyId: string,
+    avatarId?: string,
+  ) => void;
   sendVisitMessage: (text: string) => void;
   clickCta: (type: CtaType, productId?: string) => void;
   endVisit: () => void;
