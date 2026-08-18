@@ -301,7 +301,7 @@ export function Products() {
         isOpen={isAddDocModalOpen}
         onClose={() => setIsAddDocModalOpen(false)}
         title="Cargar documento interno"
-        className="max-w-lg max-h-[90vh] overflow-y-auto my-auto"
+        className="max-w-lg max-h-[90vh] overflow-y-auto mt-6 mb-auto"
       >
         <div className="space-y-4 pt-2">
           <div>
