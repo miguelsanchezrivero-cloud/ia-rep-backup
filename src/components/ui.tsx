@@ -274,27 +274,39 @@ export function Modal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6">
+      {/* Fondo de pantalla / Backdrop con difuminado */}
+      <div
+        className="fixed inset-0 bg-transparent backdrop-blur-md transition-opacity duration-300"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Contenedor del Modal */}
       <div
         className={cn(
-          "pointer-events-auto relative w-full max-w-md transform rounded-2xl bg-white p-6 shadow-2xl transition-all duration-350",
+          "relative z-10 w-full max-w-md transform rounded-2xl bg-white p-6 shadow-2xl transition-all duration-300 my-auto",
           isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0",
           className,
         )}
       >
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 border-b border-ink-100 pb-3">
           {title ? (
-            <h2 className="text-lg font-semibold text-ink-900">{title}</h2>
-          ) : null}
+            <h2 className="text-lg font-bold text-ink-900">{title}</h2>
+          ) : (
+            <div />
+          )}
           <button
             onClick={onClose}
-            className="rounded-lg p-1 text-ink-500 hover:bg-ink-100 transition-colors"
+            className="rounded-lg p-1 text-ink-400 hover:bg-ink-100 hover:text-ink-700 transition-colors"
             aria-label="Close modal"
           >
             <X size={20} />
           </button>
         </div>
+
         <div className="mt-4">{children}</div>
+
         {actions ? (
           <div className="mt-6 flex flex-wrap gap-2 justify-end">{actions}</div>
         ) : null}
