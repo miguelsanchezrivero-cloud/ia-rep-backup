@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { Login } from './pages/Login'
 
 const Dashboard = lazy(() => import('./pages/Dashboard').then((m) => ({ default: m.Dashboard })))
 const Governance = lazy(() => import('./pages/Governance').then((m) => ({ default: m.Governance })))
@@ -16,6 +18,7 @@ const Visit = lazy(() => import('./pages/Visit').then((m) => ({ default: m.Visit
 const CampaignTest = lazy(() =>
   import('./pages/CampaignTest').then((m) => ({ default: m.CampaignTest })),
 )
+const Users = lazy(() => import('./pages/Users').then((m) => ({ default: m.Users })))
 
 function PageFallback() {
   return (
@@ -30,20 +33,56 @@ export default function App() {
     <BrowserRouter>
       <Suspense fallback={<PageFallback />}>
         <Routes>
-          <Route element={<Layout />}>
-            <Route index element={<Dashboard />} />
-            <Route path="gobernanza" element={<Governance />} />
-            <Route path="avatares" element={<Avatars />} />
-            <Route path="productos" element={<Products />} />
-            <Route path="campanas" element={<Campaigns />} />
-            <Route path="crm" element={<Crm />} />
-            <Route path="analitica" element={<Analytics />} />
-            <Route path="creditos" element={<Credits />} />
-            <Route path="academia" element={<Academy />} />
-            <Route path="territorio" element={<Territory />} />
-            <Route path="visita" element={<Visit />} />
-            <Route path="prueba" element={<CampaignTest />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/login" element={<Login />} />
+          
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route element={<ProtectedRoute requiredPermission="view_dashboard" />}>
+                <Route index element={<Dashboard />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_governance" />}>
+                <Route path="gobernanza" element={<Governance />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_avatars" />}>
+                <Route path="avatares" element={<Avatars />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_products" />}>
+                <Route path="productos" element={<Products />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_campaigns" />}>
+                <Route path="campanas" element={<Campaigns />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_crm" />}>
+                <Route path="crm" element={<Crm />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_analytics" />}>
+                <Route path="analitica" element={<Analytics />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_credits" />}>
+                <Route path="creditos" element={<Credits />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_academy" />}>
+                <Route path="academia" element={<Academy />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_territory" />}>
+                <Route path="territorio" element={<Territory />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_visit" />}>
+                <Route path="visita" element={<Visit />} />
+              </Route>
+              <Route element={<ProtectedRoute requiredPermission="view_campaign_test" />}>
+                <Route path="prueba" element={<CampaignTest />} />
+              </Route>
+              
+              <Route path="configuracion">
+                <Route index element={<Navigate to="usuarios" replace />} />
+                <Route element={<ProtectedRoute requiredPermission="manage_users" />}>
+                  <Route path="usuarios" element={<Users />} />
+                </Route>
+              </Route>
+              
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
           </Route>
         </Routes>
       </Suspense>

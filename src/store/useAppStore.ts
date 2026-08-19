@@ -26,6 +26,8 @@ import type {
   DispatchJob,
   VisitSession,
   CtaType,
+  User,
+  Permission,
 } from "../types";
 import {
   estimateAudienceSize,
@@ -34,7 +36,17 @@ import {
 } from "../lib/audience";
 import { generateGovernedReply, startVisitOpening } from "../lib/governance";
 
+const mockUsers: User[] = [
+  { id: '1', name: 'Admin User', email: 'admin@test.com', permissions: ['all'] },
+  { id: '2', name: 'Partial User', email: 'user@test.com', permissions: ['view_dashboard', 'view_products'] },
+];
+
 interface AppState {
+  currentUser: User | null;
+  users: User[];
+  login: (email: string) => boolean;
+  logout: () => void;
+  updateUserPermissions: (userId: string, permissions: Permission[]) => void;
   governanceRules: typeof governanceRules;
   products: typeof products;
   documents: CompanyDocument[];
@@ -100,6 +112,22 @@ function msg(
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
+  currentUser: null,
+  users: mockUsers,
+  login: (email: string) => {
+    const user = get().users.find((u) => u.email === email);
+    if (user) {
+      set({ currentUser: user });
+      return true;
+    }
+    return false;
+  },
+  logout: () => set({ currentUser: null }),
+  updateUserPermissions: (userId: string, permissions: Permission[]) =>
+    set((s) => ({
+      users: s.users.map((u) => (u.id === userId ? { ...u, permissions } : u)),
+      currentUser: s.currentUser?.id === userId ? { ...s.currentUser, permissions } : s.currentUser,
+    })),
   governanceRules,
   products,
   documents: seedDocuments,
