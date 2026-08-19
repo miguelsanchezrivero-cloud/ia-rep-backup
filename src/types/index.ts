@@ -243,3 +243,12 @@ export interface ContextualTip {
   type: 'weather' | 'traffic' | 'event' | 'birthday' | 'custom'
   template: string
 }
+
+export type Permission = 'all' | 'view_dashboard' | 'view_governance' | 'view_avatars' | 'view_products' | 'view_campaigns' | 'view_crm' | 'view_analytics' | 'view_credits' | 'view_academy' | 'view_territory' | 'view_visit' | 'view_campaign_test' | 'view_settings' | 'manage_users';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  permissions: Permission[];
+}

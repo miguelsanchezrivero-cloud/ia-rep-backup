@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   ShieldCheck,
@@ -14,32 +14,49 @@ import {
   FlaskConical,
   Menu,
   X,
-  UserCircle,
   Bell,
+  Settings,
+  LogOut,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../lib/cn";
 import { useAppStore } from "../store/useAppStore";
 import { Badge, Button } from "../components/ui";
+import type { Permission } from "../types";
 
-const nav = [
-  { to: "/", label: "Centro de mando", icon: LayoutDashboard },
-  { to: "/gobernanza", label: "Gobernanza", icon: ShieldCheck },
-  { to: "/avatares", label: "Avatares", icon: Users },
-  { to: "/productos", label: "Productos & docs", icon: Package },
-  { to: "/campanas", label: "Campañas", icon: Megaphone },
-  { to: "/crm", label: "CRM / Audiencias", icon: Contact },
-  { to: "/analitica", label: "Analítica", icon: BarChart3 },
-  { to: "/creditos", label: "Créditos", icon: Wallet },
-  { to: "/academia", label: "Academia IA", icon: GraduationCap },
-  { to: "/territorio", label: "Territorio VM", icon: Map },
-  { to: "/visita", label: "Visita demo", icon: MessageSquareHeart },
-  { to: "/prueba", label: "Test de campaña", icon: FlaskConical },
+const nav: { to: string; label: string; icon: any; permission: Permission }[] = [
+  { to: "/", label: "Centro de mando", icon: LayoutDashboard, permission: 'view_dashboard' },
+  { to: "/gobernanza", label: "Gobernanza", icon: ShieldCheck, permission: 'view_governance' },
+  { to: "/avatares", label: "Avatares", icon: Users, permission: 'view_avatars' },
+  { to: "/productos", label: "Productos & docs", icon: Package, permission: 'view_products' },
+  { to: "/campanas", label: "Campañas", icon: Megaphone, permission: 'view_campaigns' },
+  { to: "/crm", label: "CRM / Audiencias", icon: Contact, permission: 'view_crm' },
+  { to: "/analitica", label: "Analítica", icon: BarChart3, permission: 'view_analytics' },
+  { to: "/creditos", label: "Créditos", icon: Wallet, permission: 'view_credits' },
+  { to: "/academia", label: "Academia IA", icon: GraduationCap, permission: 'view_academy' },
+  { to: "/territorio", label: "Territorio VM", icon: Map, permission: 'view_territory' },
+  { to: "/visita", label: "Visita demo", icon: MessageSquareHeart, permission: 'view_visit' },
+  { to: "/prueba", label: "Test de campaña", icon: FlaskConical, permission: 'view_campaign_test' },
+  { to: "/configuracion/usuarios", label: "Configuración / Usuarios", icon: Settings, permission: 'manage_users' },
 ];
 
 export function Layout() {
   const [open, setOpen] = useState(false);
   const balance = useAppStore((s) => s.credits.balance);
+  const currentUser = useAppStore((s) => s.currentUser);
+  const logout = useAppStore((s) => s.logout);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const filteredNav = nav.filter((item) => {
+    if (!currentUser) return false;
+    if (currentUser.permissions.includes('all')) return true;
+    return currentUser.permissions.includes(item.permission);
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-brand-50/30 via-slate-50 to-white">
@@ -93,7 +110,7 @@ export function Layout() {
 
           {/* Navegación */}
           <nav className="scrollbar-thin flex max-h-[calc(100vh-240px)] flex-col gap-1 overflow-y-auto pr-1">
-            {nav.map((item) => (
+            {filteredNav.map((item) => (
               <NavLink
                 key={item.to}
                 to={item.to}
@@ -194,14 +211,22 @@ export function Layout() {
               >
                 <Bell size={18} />
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 rounded-full p-0 text-ink-600 hover:bg-ink-100"
-                aria-label="Perfil de usuario"
-              >
-                <UserCircle size={20} />
-              </Button>
+              <div className="flex items-center gap-3 pl-2 border-l border-ink-200">
+                <div className="hidden md:flex flex-col items-end">
+                  <span className="text-sm font-medium text-ink-900">{currentUser?.name}</span>
+                  <span className="text-xs text-ink-500">{currentUser?.email}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleLogout}
+                  className="h-8 w-8 rounded-full p-0 text-ink-600 hover:bg-red-50 hover:text-red-600"
+                  title="Cerrar sesión"
+                  aria-label="Cerrar sesión"
+                >
+                  <LogOut size={18} />
+                </Button>
+              </div>
             </div>
           </header>
 
